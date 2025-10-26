@@ -27,12 +27,7 @@ node {
     // Run Maven from ROOT (where pom.xml exists)
     sh "${mavenCMD} clean package -DskipTests"
 }
-    stage('Build Docker Image') {
-        echo 'Building Docker image...'
-        dir('insure-me') {
-            sh "docker build -t insure-me:${tagName} ."
-        }
-    }
+    
 
     stage('Push to AWS ECR') {
         echo 'Logging in to AWS ECR & Pushing Docker Image...'
@@ -51,7 +46,14 @@ node {
             docker rm -f insureme-test || true
             docker run -d --name insureme-test -p 8081:8080 399485458177.dkr.ecr.ap-south-1.amazonaws.com/insureme:${tagName}
         """
+    }stage('Push Docker Image') {
+    withCredentials([usernamePassword(credentialsId: 'docker-hub-creds', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
+        sh "echo $PASS | docker login -u $USER --password-stdin"
+        sh "docker tag insureme:1.0.0 yourdockerhubusername/insureme:1.0.0"
+        sh "docker push yourdockerhubusername/insureme:1.0.0"
     }
+}
+
 
     stage('Approval for Production Deployment?') {
         timeout(time: 30, unit: 'MINUTES') {
