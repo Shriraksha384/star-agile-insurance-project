@@ -52,15 +52,7 @@ node {
         """
     }
 
-    stage('📤 Push Docker Image to DockerHub') {
-        withCredentials([usernamePassword(credentialsId: 'docker-hub-creds', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
-            sh """
-                echo $PASS | docker login -u $USER --password-stdin
-                docker tag insureme:${tagName} $USER/insureme:${tagName}
-                docker push $USER/insureme:${tagName}
-            """
-        }
-    }
+   
 
     stage('✅ Approval for Production Deployment?') {
         timeout(time: 20, unit: 'MINUTES') {
