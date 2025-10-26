@@ -22,13 +22,11 @@ node {
         }
     }
 
-    stage('Build the Application') {
-        echo "Cleaning... Compiling... Packaging..."
-        dir('insure-me') {       // ✅ Go inside correct folder where pom.xml exists
-            sh "${mavenCMD} clean package -DskipTests"
-        }
-    }
-
+   stage('Build the Application') {
+    echo "Cleaning... Compiling... Packaging..."
+    // Run Maven from ROOT (where pom.xml exists)
+    sh "${mavenCMD} clean package -DskipTests"
+}
     stage('Build Docker Image') {
         echo 'Building Docker image...'
         dir('insure-me') {
