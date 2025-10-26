@@ -30,15 +30,20 @@ node {
     
 
     stage('Push to AWS ECR') {
-        echo 'Logging in to AWS ECR & Pushing Docker Image...'
-        withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-ecr']]) {
-            sh """
-                aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 399485458177.dkr.ecr.ap-south-1.amazonaws.com
-                docker tag insure-me:${tagName} 399485458177.dkr.ecr.ap-south-1.amazonaws.com/insureme:${tagName}
-                docker push 399485458177.dkr.ecr.ap-south-1.amazonaws.com/insureme:${tagName}
-            """
-        }
+    echo "Logging in to AWS ECR & Pushing Docker Image..."
+
+    withCredentials([[
+       $class: 'AmazonWebServicesCredentialsBinding',
+       credentialsId: 'aws-ecr'
+    ]]) {
+        sh """
+            aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 399485458177.dkr.ecr.ap-south-1.amazonaws.com
+            docker tag insureme:1.0.0 399485458177.dkr.ecr.ap-south-1.amazonaws.com/insureme:1.0.0
+            docker push 399485458177.dkr.ecr.ap-south-1.amazonaws.com/insureme:1.0.0
+        """
     }
+}
+
 
     stage('Deploy to Test Server (8081)') {
         echo "Deploying container on Test server..."
